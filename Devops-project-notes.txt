@@ -1,0 +1,795 @@
+Connect with aws instance in Mobaxterm
+
+1.  sudo -i
+2.  hostname jenkins-server
+3.  sudo su -
+4.  java -version  (it will show if java is intalled or not)
+5.  yum install java-1.8*    
+6.  which java  (It will show where java has been installed) (/usr/bin/java)
+7.  find /usr/lib/jvm/java-1.8* | head -n 3        (there will be some libraries     installed in usr/lib also)(there will be so many files, we have filtered only 3         files)the last file is imp where java is installed. copy that & paste it in a     notepad.
+    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.312.b07-1.amzn2.0.2.x86_64
+    
+8.  java -version
+9.  cd ~
+10. pwd  (make sure u r in /root)
+11. ls -la
+12. vi .bash_profile
+    (in this file above the PATH, write the following:
+    JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.312.b07-1.amzn2.0.2.x86_64
+    PATH=$PATH:$HOME/bin:$JAVA_HOME
+    (whenever u run any java command it will run from here) :wq
+13. echo $JAVA_HOME     (check if it will show the set variable)
+    (It wont show anything. Because whenever u set variable, u need to relogin.)
+14. exit
+15. exit
+16. sudo -i
+17. echo $JAVA_HOME   (It will show the variable path which we have set in .bash_profile     file)
+18. We need to install jenkins package. 
+    Go to browser, 
+    https://pkg.jenkins.io/redhat-stable/
+    foloow the 4 steps in Mobaxterm
+19. service jenkins status  (check if jenkins is working)
+    It will show diabled.
+20. service jenkins start  (It will start the jenkins service)
+21. service jenkins status  (now it will work)
+22. Go to browser and open with ipaddr:8080 (copy the path its displaying)
+23. come to CP (commamd prompt)
+24. cat (copy the above path from browser)
+     ex:-  cat /var/lib/jenkins/secrets/initialAdminPassword
+    It will display the password to login in jenkins from browser
+    ex:- b184dd245d6c447080d55c1e2bc68a73
+25. click on install suggested plugins
+26. After installing plugins it will ask to create admin user
+27. username: nishapatil33
+    password: nishapatil@33
+    confirm password: nishapatil@33
+    Full name: Nisha Patil
+    e-mail: nisha.npatil@gmail.com
+28. Save & continue
+29. save & finish
+30. Start using jenkins
+31. Go to manage jenkins
+32. go to Global tool config
+    click on add jdk, uncheck install automatically
+    in name:  JAVA_HOME
+    JAVA_HOME: /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.312.b07-1.amzn2.0.2.x86_64
+     save
+33. click on new item
+    name: My_first_job
+    freestyle
+    ok
+    come to build step
+    execute shell
+    echo "welcome to devops project"
+    apply & save
+    clcik on build now.  (It will execute the first task)
+34. lets configure MAVEN & GIT on the same server.
+35. come to CP
+36. git (it will show not found)
+37. yum install git -y
+38. git  (now it show installed)
+39. go to jenkins, manage jenkins, manage plugins, available, github 
+    select github integration
+    install witout restart
+40. go to global tool configuration in jenkins
+    git
+    name: github
+    path to git: git
+    apply & save
+41. go to browser, maven downloads
+    https://maven.apache.org/download.cgi (copy the below link)
+    https://dlcdn.apache.org/maven/maven-3/3.8.6/binaries/apache-maven-3.8.6-bin.tar.gz
+42. come to CP
+    pwd
+43. cd /opt  (we dont want to install in root as it installs many packages)
+44. ll
+45. wget (paste the maven link)
+46. ll
+47. mvn  (It still wont run mvn, beacuse still the downloaded maven is in gunzip format          we need to extract it)
+48. tar xvzf (copy paste the above file displayed in red when u did ll)
+    ex: tar xvzf apache-maven-3.8.6-bin.tar.gz
+49. ll
+50. mv apache-maven-3.8.6 maven  (here we are renamning the longer file name to maven)
+    
+51. ll
+52. cd maven
+53. pwd (copy the path, we need to setup the environment variable & path)
+    /opt/maven
+54. vi ~/.bash_profile  (we can edit from anywhere giving ~)
+    below JAVA_HOME
+    JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.312.b07-1.amzn2.0.2.x86_64
+    M2_HOME=/opt/maven
+    M2=/opt/maven/bin
+    PATH=$PATH:$HOME/bin:$JAVA_HOME:$M2:$M2_HOME
+    :wq
+55. mvn --version (it wont work , u need to relogin)
+56. sudo su -
+57. mvn --version 
+58. now we need to set this maven path in jenkins
+59. Got to jenkins, manage jenkins, global tol config
+    add maven
+    Name = M2_HOME
+    MAVEN_HOME = /opt/maven
+    apply & save
+60. mange plugins,
+    maven release plugin (install  without restart)
+    
+61. In jenkins
+    new item
+    my_first_maven_build
+    select maven project & ok
+    description: naven build
+    discard: 5, 5
+    select git
+    login to github from browser
+    create new repository : devproj
+    click on upload an existing file. darg and drop all the fils from the hello_world     folder sent by sir. saved as source code in E drive.
+    commit message: java sample 
+62. Go to code (green box) and copy the repo link.
+63. come to jenkins and paste the url in git repositry url. As its public no need to give     credentials. 
+64. Goals and options: clean install package
+    apply & save
+65. Build now
+66. go to dashboard & click on my_first_maven_job
+67. clcik on webapp, target 
+    here u can see webapp.war (its ur final package)
+68. come to CP
+69. cd /var/lib/jenkins/workspace
+70. ll
+71. cd my_first_maven_job/
+72. ll
+73. cd webapp/
+74. ll
+75. cd target/
+76. ll  (It will show webapp.war file here , the jenkins workspace)
+77. spin a new ec2 amazon linux for tomacat (tomcat-server) Open all traffic, and give     Custom TCP , port range 8080, source anywhere.
+78. Tomcat also works on java , so need to install java.
+79. Go to browser and search tomacat download
+    https://tomcat.apache.org/download-80.cgi
+    (copy the below link)
+    https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.81/bin/apache-tomcat-8.5.81.tar.gz
+80. Connect in Mobaxterm with new instance
+81. sudo -i
+82. hostname Tomacat-server
+83. sudo su -
+84. cd /opt
+85. wget https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.81/bin/apache-tomcat-8.5.81.tar.gz
+86. ll
+87. tar -xvzf apache-tomcat-8.5.81.tar.gz
+88. ll
+89. mv apache-tomcat-8.5.81 tomcat
+90. ll
+91. cd tomcat/
+92. ll
+93. cd bin
+94. ll (here we can see 2 scripts, startup.sh which we need to run to start the tomcat, &         shutdow.sh to stop the tomcat)
+95. ./startup.sh
+    (It wont work as it need java to run , Install java from root)
+96. cd ~
+97. pwd (chk if u r in root)
+98. yum install java-1.8*
+99. java -version
+100. find /usr/lib/jvm/java-1.8* | head -n 3
+1.  Copy the below path and keep in notepad
+    /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.312.b07-1.amzn2.0.2.x86_64
+2.  vi .bash_profile
+    paste the below line above path
+    JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.312.b07-1.amzn2.0.2.x86_64
+    PATH=$PATH:$HOME/bin:$JAVA_HOME
+3.  sudo su -
+4.  echo $JAVA_HOME    (java is working)
+5.  cd /opt/tomcat
+6.  cd bin
+7.  ll
+8.  ./startup.sh  (now tomcat started)
+9.  goto browser public ipaddr:8080
+10. click on manager app (it will show error, u need to add user & pw)
+11. lets disable the error, come to CP
+12. find / -name context.xml
+    it will display the following:
+
+/opt/tomcat/conf/context.xml
+/opt/tomcat/webapps/examples/META-INF/context.xml
+/opt/tomcat/webapps/host-manager/META-INF/context.xml
+/opt/tomcat/webapps/manager/META-INF/context.xml
+
+13. wherever manager files are shown we need to edit them 
+14. vi /opt/tomcat/webapps/manager/META-INF/context.xml
+    here we can see valve on line no 21, comment it . <!--      -->
+    <!--  <Valve className="org.apache.catalina.valves.RemoteAddrValve"
+    allow="127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1" /> -->
+15. vi /opt/tomcat/webapps/host-manager/META-INF/context.xml
+
+   <!--  <Valve className="org.apache.catalina.valves.RemoteAddrValve"
+   allow="127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1" /> -->
+16. ./shutdown.sh
+17. ./startup.sh
+18. Go to browser & refresh the tomcat page. It will ask for un & pw. we need to set up.
+19. Come to CP
+20. cd ..   (come out of bin)
+21. ls -l
+22. cd conf
+23. ll
+24. vi tomcat-users.xml
+    --come to the end of the file paste the below on line 56.
+  <role rolename="manager-gui"/>
+  <role rolename="manager-script"/>
+  <role rolename="manager-jmx"/>
+  <role rolename="manager-status"/>
+  <user username="admin" password="admin" roles="manager-gui, manager-script, manager-jmx, manager-status"/>
+  <user username="deployer" password="deployer" roles="manager-script"/>
+  <user username="tomcat" password="s3cret" roles="manager-gui"/>
+</tomcat-users>
+
+:wq
+25. cd ..
+26. ll
+27. cd bin
+28. ll
+29. ./shutdown.sh
+30.  ./startup.sh
+31.  Now got o tomcat browser and give  
+     username = admin
+     password = admin
+32. Go to jenkins browser, manage jenkins, avilable, search for deploy to container
+     install without restart.
+33. new item, 
+    name = deploy on tomcat server
+    select maven project  say ok
+    description = tomcat
+    selet git and paste url = https://github.com/nishapatil5/devproj.git
+    (open duplicate tab and see the configuration of previous maven job. copy the              git repo link.)
+    Goals and options = clean install package
+    Post-build Actions = select deploy to container
+    WAR/EAR files = **/*.war
+    click on Add container = select tomcat 8x
+    Click on add credentials, select jenkins and give below credentials
+    
+    Username = deployer
+    Password= deployer
+    ID = deployer_user
+    Description= user to deploy on tomcat
+   
+    click on ADD
+
+   Then select deployer from credentials.
+   copy the tomcat url from browser & paste it in tomacat url
+   ex:  Tomcat URL = http://43.204.219.13:8080/
+
+   Apply & save...
+
+   Before running the job, got to CP
+  
+34. cd ..   (come out of bin )
+35. ll
+36. cd webapps/  
+37. ll  (As of now its not showing war file, when we run the job in jenkins it will show)
+38. Go to jenkins & build the job.
+39. Come to Cp
+40. ll   (It will showwebapp.war file)
+41. Go to tomcat browser & refresh 
+42. It will show /webapp. Click on it. It will show the developed application. 
+43. Now we will configure POll SCM
+44. go to jenkins and click on job deploy_on_tomcat_server
+45. clcik on configure on left
+46. clcik on build triggers
+47. select poll scm 
+    * * * * *
+    APPLY & SAVE
+48. Come to github
+49. click on webapp folder
+50. click on src/main/webapp
+51. clcik on index.jsp
+52. edit the file.   
+    just paste
+    <h2> Thank you </h2>
+    commit changes
+53. Now go & observe the jenkins job (deploy_on_tomcat_server)
+    If it doesnt run automatically just build & see. 
+54. come to cp &
+55. ll   (it willshow updated webapp.war, look at the timing)
+56. Once again go to github & edit 
+    <h2> Bye bye </h2>
+     commit changes
+57. Come to jenkins job & see if it automatically builds...
+58. Refresh the tomcat browser & see it will display bye bye.
+
+   Shut down the machines, dont terminate it.
+
+
+    Notes:- Jenkins & tomcat are two different servers, we have integrated it in such a way that when we complete the build from the jenkins, it will conncet to the tomcat & do the deployment.
+
+////////////////////////////////////////////////////////////////////////////////////////   
+DAY 2:- 
+
+So yesterday we have configured the jenkins on 1 server & tomcat on another ec2 instance. on jenkins server we have installed git, maven, jenkins. 
+
+Now we will deployment of docker. we will replace ec2 instance(tomcat) with docker. 
+
+Steps to follow:
+
+Set up docker host 
+a. Set up a linux ec2 instance
+b. install docker
+c. start docker services
+d. integrate docker with jenkins
+e. automate CI/CD to deploy application on docker container
+
+1. create one amazon linux ec2 instance & in security add rule, All tcp , anywhere & save
+2. connect with public ip in Mobaxterm
+3. sudo -i
+4. hostname docker-server
+5. sudo su -
+6. yum install docker
+7. docker ps (it wont work as daemon service is not started)
+8. service docker status
+9. service docker start  (It will start docker service)
+10. service docker status
+11. docker ps
+12. docker images
+13. docker pull tomcat   (It will install tomcat here)
+14. docker images (It will show tomacat, we will make use of this to create conatiner)
+15. docker run -d --name tomcat-container -p 8080:8080 tomcat
+
+Go to ec2 instance docker-server, copy ip add and paste in browser. ipaddr:8080
+    ---its showing some error
+
+16. docker ps -a
+17. docker exec -it ecebfb50b348 /bin/bash
+18. ls -l  (here u can see webapps & webapps.dist folder)
+19. cd webapps  
+20. ll  (here u cant see any files)
+21. cd ..
+22. ll
+23. cd webapps.dist  
+24. ll  (here u can see some files, as these files are not present in webapps , the          tomcat image is not working. thats the reason its throwing error)
+25. cp -R * ../webapps   (we are copying the contents from webapps.dist to webapps                           folder)
+26. cd ..
+27. ll
+28. cd webapps
+29. ll (now it will show the files which we had copied)
+ 
+Go to browser & check, now it will display the tomcat page. 
+
+30. exit
+31. pwd (come to root) the earlier tomcat image (10.0.22) had some problem, so we will create new                           container for tomcat image 8.0.
+32. docker run -d --name tomcat-8 -p 8081:8080 tomcat:8.0
+
+ go to browser ipaddr:8081, it will directly open tomcat.
+
+33. got o jenkins, manage plugins, available, publish over ssh, install without restart.
+
+    we need to integrate jenkins with docker.
+34. Come to docker CP
+35. we need to creae a user 
+36. useradd dockeradmin
+37. passwd dockeradmin
+38. password= dockeradmin
+39. retype password: dockeradmin
+40. cat /etc/group
+41. id dockeradmin (here it will show that dockeradmin belong to 1001 dockeradmin group.
+                    but we want to add it to dockergroup.
+    ex: uid=1001(dockeradmin) gid=1001(dockeradmin) groups=1001(dockeradmin)
+
+42. usermod -aG docker dockeradmin
+43. id dockeradmin   (it will show the dockeradmin has been added to docker)
+    ex: uid=1001(dockeradmin) gid=1001(dockeradmin) groups=1001(dockeradmin),992(docker)
+
+44. ip addr  (it will display the private ipaddr of the ec2 instance, copy it)
+45. Go to jenkins, manage jenkins, configure system, look for SSH Servers. Click on Add.
+    give the following details:-
+    Name:- docker-server
+    Hostname:- private ip addr of instance
+    username= dockeradmin
+    clcik on Advanced, check the use password authentication box,
+    passphrase/password: dockeradmin
+     Click on TestConfiguration box below.
+     It will give error , we are trying to connect jenkiks server with docker server.
+46. Got to docker CP
+47. vi /etc/ssh/sshd_config
+    line no. 61 , uncomment the password authentication yes. and comment the     passwordauthentication no. :wq
+48. service sshd reload
+    Now go to jenkins & do test configuration.  apply & save
+49. Create a new job in jenkins, deploy_on_docker, select copy from option, there u type     deploy_on_tomcat_Server (this is the rpevios job created, it will take the same     configuration). say ok.
+    Description = deploy on docker
+    delete the **/*.war archieve option also.
+    delete the container option. (tomcat option)
+    clcik on add post build action, select send over ssh
+    Source files = webapp/target/*.war
+    Remote directory = .
+    save 
+50. come to docker CP
+51. ls -la
+52. pwd (it will show we are in root, we need to switch over to dockeradmin user)
+53. su - dockeradmin
+54. pwd
+    /home/dockeradmin
+55. ls -l (It will show webapp folder which will have .war file)
+56. cd webapp
+57. ls -l
+58. cd target
+59. ls -l (it will show webapp.war file)
+
+   We have integrated jenkins & docker, this is a docker machine & jenkins machine is different machine. we have integrated it with publish over ssh plugin. once i complete my war file deployment wil be done on docker machine not on tomcat. i am directly deploying wAr FILE TO THE DOCKER. 
+
+60. pwd
+    /home/dockeradmin/webapp/target  (i dont want to save the war file here. i want to save it in the home/dockeradmin. 
+61. Go to jenkins , deploy on docker job, configure,
+    go to post-build actions
+    Remove prefix = webapp/target  (next onwards it will directly deploy in home dir) 
+    save
+62. come to docker cp
+63. cd ..
+64. cd ..
+65. ls -la
+66. rm -rf webapp/  (we have removed the webapp folder)
+67. ls -la
+68. pwd
+    run the job/build in jenkins
+69. ls -la  (now it will show the webapp in /home/dockeradmin)
+
+   now we have to create an image using this above war file & then create a container    using this image so that i shd get the application which we have developed.
+
+70. vi dockerfile  (create a docker fle)
+
+FROM tomcat:latest   (here we r downloading latest tomcat image)
+
+MAINTAINER Nisha
+
+COPY ./webapp.war /usr/local/tomcat/webapps  
+
+ ///we are copying the webapp.war file from the current directory to container (image) in usr/local/tomcat location.
+:wq
+
+71. ls 
+72. docker build -t devops-project .  
+    // we are taking the dockefile, reading the docker file & creating the image devops-project.
+73. docker images //It will show the devops-project image
+
+   //using this image we will create a container
+74. docker ps -a  (remove all the containers if any.) // docker rm -f (cont id)
+75. docker run --name devops-container -p 8080:8080 devops-project
+
+  Go to browser ipaddr:8080/webapp
+ 
+  //we have deployed this war file on the container, not on docker or tomcat.  
+
+  give ctl C in CP
+
+  Now refresh the page & see, it wont work as we stopped the container. Container is     running our application. 
+76. docker ps -a
+77. docker rm -f cont id
+78. docker run -d --name devops-container -p 8080:8080 devops-project
+   Again to the page & refresh. It will work. Everything is working fine in command    prompt, now we have to do it with jenkins.
+79.In jenkins, create new item, name = deploy_on_container, copy from = deploy_on_docker,    say ok.
+80. description = deploy on container,
+    in post-build action
+    exec command = //the command is in 2 line//
+
+    cd /home/dockeradmin; docker build -t devops-image .;
+    docker run -d --name devops-container -p 8080:8080 devops-image;
+                  
+    we are entering into the home directory dockeradmin, in this we have a dockerfile,     using that dockerfile we need to create an image.
+    save.
+81. Before running the above job come to CP and delete the previously created war file
+82. rm -rf webapp.war
+83. ls -la
+84. docker ps -a
+85. docker rm -f (cont id)   ///remove any existing containers
+86. docker ps -a
+87. docker images
+88. docker rmi devops-project tomcat:8.0  // remove the images
+89. docker images  //only tomcat lastest should be there.We have removed all the     containers, images. NOw if I run the job through the jenkins, it should create a war file , build it, & create a docker image, & using the docker image it should create the container.And it should deploy our application on the container.
+ 
+ Go to browser & refresh the page (ipaddre:8080/webapp/)
+
+90. Go to jenkins & build the job (deploy_on_container)
+91. Go to CP
+92. ls -l //(It will show webapp.war file created)
+   Go to browser & refresh. It will display the application.
+
+   Goto CP
+93. docker ps -a (it will the container created)
+94. docker images  (it will show devops-image which the jenkins job has created)
+
+   I have integrated this jenkins with docker & i was able to deploy the application on    the docker container. If I run the job once again, it will give an error saying the project build is unstable. 
+ 
+  goto jenkins, clcik on build now. it will say unstable. Why means, already there is a container running, already image is created, when u try to do it again ,the deployment it tries to create an image, it says already its present. the container is also already present. It not able to delete previous image & container , and do it again. Jenkins is not so smart to do the deployment part. It is mainly used as a tool for continuos integration. If u want to use a continuos deployment then, u require another tool called ANSIBLE. 
+95. docker ps -a  (we will remove the container & image , then run the build again)
+96. docker rm -f (cont id)
+97. docker images
+98. docker rmi (image name)  //keep only tomcat image//
+    ex:-  docker rmi devops-image
+99. Goto browser & refresh  (it wont work)
+100. Goto github & edit the index.jsp. 
+     <h1> Hello, Welcome to DevOps Project !!   </h1>
+     <h2> Deploying on a Docker container using Jenkins </h2>
+     //commit the changes//
+1. come to jenkins & build job (deploy_on_container)
+
+   // We have to manually delete the conatiners, images. its not so smart work.//
+2. Goto browser & refresh the page. It will display the application.
+3. Enable poll SCM in the jenkins job.
+4. Goto github & edit something. then commit.
+5. Go & observe the jenkins job. if the developer commits new changes,this is going to    fail, it cant deploy latest changes done from the deployment side. For this we require    a dedicated deployment tool. To reolve this unstable issue & do the automatic    deployment we need ANSIBLE. It will do Continuos deployment CD job.
+   CI=jenkins
+   CD=ANsible
+
+//////////////////////////////////////////////////////////////////////////////////////
+
+DAY 3:-
+STEPS:- 
+
+2. Prepare ANsible server:- 
+
+a. setup ec2 instance
+b. setup hostname
+c. create ansadmin user
+d. add user to sudoers file
+e. generate ssh keys
+f. enable password base login
+g. integrate docker with anisble
+h. integrate ansible with jenkins
+i. run jenkins CI/CD job to deploy on containers using ansible. 
+
+1. Spin up a new amazon linux instance in AWS.
+2. connect in mobaxterm with ipadrr
+3. sudo -i
+4. hostname ansible-server
+5. sudo su -
+6. yum install python
+7. yum install python-pip
+8. pip install ansible
+9. ansible --version
+10. useradd ansadmin
+11. passwd ansadmin
+12. password= ansadmin
+13. retype= ansadmin
+14. visudo
+15. after the last line paste below content , :wq
+  ansadmin ALL=(ALL)       NOPASSWD: ALL
+16. vi /etc/ssh/sshd_config
+    PasswordAuthentication yes
+    #PermitEmptyPasswords no
+    #PasswordAuthentication no
+17. service sshd reload
+18. we will install the docker here & then perform activities.once its succesfull we will     do it on docker machine.
+19. yum install docker
+20. usermod -aG docker ansadmin  //we are adding this ansadmin to docker group//
+21. service docker status
+22. service docker start
+23. service docker status
+24. su - ansadmin   //login with ansadmin
+25. ssh-keygen // enter, enter, enter
+26. ls -la
+27. cd .ssh
+28. ls -la
+29. cat id_rsa.pub
+    
+
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC6Kdk03caYpwKMk/85BRZgmKoowXzKWKbdH8aByWk4656+veiBXyYQccwseHU8bhYw+FRoALSuUmbzcf1jp50UyZOu2wS37aggbRRqgAG+FYQdFelV65WgupnAmFbpQ2KLdQBvudO4QlyMXELq38gkka6HGCBeLV0rPYVLxrx1zaklXvuKGnqtzwf5HGBgNaD8qfMK1bxyEfX6oEK/5f1WGMSU+Mwy2pHfmbm9MScNUt5+aLqzU9lwjk/dHhcGcgIDTt0OHhilCVBxt4yHQRtF4kpNpCoXHNCoLEGuc3Y8g77IjJelKi7EeBo+oQAPbbmzlSGbm18e6BPJvEi4KS4V ansadmin@ansible-server
+
+30.cd ..
+31. Go to docker machine (instance) , 
+32. [root@docker-server ~]# useradd ansadmin   //create a user ansadmin from root
+33. passwd ansadmin
+34. password = ansadmin
+35. retype = ansadmin
+36. come to ansible-server machine
+37. take private ip address of docker machine
+38. [ansadmin@ansible-server ~]$ ssh-copy-id ansadmin@(private ipaddr of docker machine)
+39. password =ansadmin
+40. ssh ansadmin@172.31.4.226  (private ipaddr of docker machine)
+41. We have eshtablished the connection from ansible to the docker. I have generated a key & used this ansadmin as a user, created on both machine, & from ansible server I have created a connection to the docker. 
+42. exit
+43. cd /etc
+44. ls -l  (we are looking for anisble folder)
+45. sudo mkdir ansible
+46. ls -l  (now it will show ansible folder)
+47. cd /etc/ansible
+48. ls -l  (currently nothing is there. but we need to add host file. then only i can add             ip address to this machine.
+49. sudo vi hosts
+    paste --
+    ipaddr private of docker machine
+    localhost
+    :wq
+50. ansible all -m ping    //see if ansible machine is able to connect to docker & local                            host//
+   If this shows error to connect to localhost then
+51. ssh-copy-id localhost
+    say yes
+    password = ansadmin
+52. ansible all -m ping  //we have eshtablished a connection from ansible to docker
+  
+   Now we will go to jenkins & eshtablish a connection from jenkins to Ansible. 
+
+53. Goto jenkins browser  //ipadd of jenkins-server-machine:8080 
+54. goto manage jenkins  , configure system, scroll down to SSH servers.
+55. Click on Add .
+56. name = ansible-server
+57. Hostname = (private ipadd of ansible-server machine)
+58. Username = ansadmin
+59. click on advanced, check the use password authentication box. 
+60. password = ansadmin
+61. click on test configuration  //it should show success. means jenkis & ansible integration is done. save & apply
+62. create a new job, name = deploy_on_container_using_ansible
+63. selct copy from = deploy_on_container
+64. description = deploy on container using ansible
+65. remove poll scm
+66. goto post-build actions, in ssh server , name = ansible-server
+67. Remote directory = //opt//docker   (double // will take if space between the folders)
+68. come to CP ansible-server
+69. cd /opt
+70. ls -l
+71. sudo mkdir docker
+72. ls -l
+73. sudo chown -R ansadmin:ansadmin /opt/docker    (here we are changing the ownership of                                              docker from root to ansadmin)
+74. ls -l  //it will show the changed ownership to ansadmin
+75. cd docker
+76. pwd
+    it will show =/opt/docker  (We have created this folder) this same folder we have     given in point no. 67.
+77. go back to jenkins job & remove exec command .delete
+
+78. in CP 
+79. ls -l (rightnow nothing is there)once we run the job it will create a war file
+80. go to jenkins & build.
+81. come to CP
+82. ls -l (it will show the webapp.war file)
+
+     what we have done is , I have created a build & that war file is deployed on ansible server.Now i have to create a docker file & then copy this war file & create a customised image.
+
+83. vi dockerfile
+   [ansadmin@ansible-server docker]$ vi dockerfile
+
+copy paste below content in dockerfile :
+
+FROM tomcat:latest  
+
+MAINTAINER Nisha
+
+COPY ./webapp.war /usr/local/tomcat/webapps
+:wq
+
+84.  we will create a new file & write docker commands in that file
+85. vi sample-devops-image.yml
+
+    paste:---
+---
+- host: all
+  become: true
+
+  tasks:
+  - name: build docker image using war file
+    command: docker build -t sample-devops-image .
+    args:
+      chdir: /opt/docker
+86. ls -l
+87. docker images
+88. docker ps -a
+89. cat /etc/ansible/hosts   (copy the content)
+90. vi hosts // paste= localhost
+91. cat sample-devops-image.yml
+92. ansible-playbook -i hosts sample-devops-image.yml --check   (just to check if the yml script will work or not)
+93. ansible-playbook -i hosts sample-devops-image.yml
+94. docker images   (the script is working fine & created an image)
+  now we need to create a container also. we will use this image & create a container.
+95. vi sample-devops-image.yml
+//paste:=
+---
+- hosts: all
+  become: true
+
+  tasks:
+  - name: build docker image using war file
+    command: docker build -t sample-devops-image .
+    args:
+      chdir: /opt/docker
+
+  - name: create container using sample-devops-image
+    command: docker run -d --name sample-devops-container -p 8080:8080 sample-devops-image
+
+96. docker ps -a
+97. ansible-playbook -i hosts sample-devops-image.yml
+98. docker ps -a  (it will the new container created)
+99. goto browser , copy ansible-server ipadd:8080   (make sure all traffic is open)
+    it will show some http error. then mention /webapp
+    ex: ipadd:8080/webapp
+100. docker ps -a
+1. docker rm -f (cont id)   //remove all cont
+2. docker images
+3. docker rmi (imagename) (image name)  //remove all igaes
+   No images no cont
+   in my ansible server my script is ready. if i run the script it will again create a container & image. Now i have to invoke this script & I have to run it through jenkins. 
+4. Come to jenkins browser
+  go to dashboard 
+  open the file = deploy_on_container_using_ansible
+  lets rename this file, go to ansible-server machine CP
+5. mv sample-devops-image.yml sample-devops-project.yml
+6. ll
+7. come to jenkins, in postbuild action
+   exec command =  
+   ansible-playbook -i /opt/docker/hosts /opt/docker/sample-devops-project.yml;
+8. save & build
+9. come to command promt
+10. docker images  (new image will be created)
+11. docker ps -a  (new container)
+12. in jenkins job (deploy_on_container_using_ansible) enable poll scm (* * * * *)
+13. goto github and edit in the index.jsp & commit it.
+14. in jenkins observe the job build. It will show unstable, same as it happened with jenkins. 
+15. Come to CP, 
+16. vi sample-devops-project.yml  //the two tasks in file are performing fine. its building a war file image & creating a container. but the other task what i have to do is first i have to stop the cont & remove the cont & then remove the image & then perform the above task (creating image, then container). then only the new changes will appear. Manually what we did when we want updated chages? we deleted the cont & images. And again build the job.//
+  
+paste: 
+---
+- hosts: all
+  become: true
+
+  tasks:
+
+  - name: stop current running container
+    command: docker stop sample-devops-container
+    ignore_errors: yes
+
+  - name: remove stopped container
+    command: docker rm sample-devops-container
+    ignore_errors: yes
+
+  - name: remove docker image
+    command: docker rmi sample-devops-image
+    ignore_errors: yes
+
+  - name: build docker image using war file
+    command: docker build -t sample-devops-image .
+    args:
+      chdir: /opt/docker
+
+  - name: create container using sample-devops-image
+    command: docker run -d --name sample-devops-container -p 8080:8080 sample-devops-image
+
+
+~
+17. why we have given ignore_errors: yes?
+    if our cont is running it will stop, if cont is not there it will throw error that i cant stop as cont is not avaible. so to skip to next step we give ignore_error: yes.
+  
+18. Go to jenkins & build the job again & see. it will show success. 
+19. goto browser & check, it will display changes.
+20. goto CP
+21. docker ps -a  (it will create new cont, check the time)
+22. docker images
+23. change in github & commit. then go to jenkins & observe the job. as its poll SCM.
+24. docker ps -a  
+25. docker images  (new image created, chk time)
+
+ 
+
+  
+
+ 
+     
+
+
+
+
+
+ 
+
+
+    
+
+
+    
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
